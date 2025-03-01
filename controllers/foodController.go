@@ -1,14 +1,22 @@
 package controllers
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+	"restaurant-management/service"
 
-func GetFoods() gin.HandlerFunc {
-	return func(c *gin.Context) {
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
+)
 
-	}
+func GetFoods(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	service := service.NewFoodService()
+	class, err := service.GetFood(params["id"])
 }
 
 func GetFood() gin.HandlerFunc {
+	service := service.NewFoodService()
+
 	return func(c *gin.Context) {
 
 	}

@@ -3,6 +3,7 @@ package database
 import (
 	"errors"
 	"fmt"
+	"restaurant-management/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -19,7 +20,16 @@ func GetDB() *gorm.DB {
 }
 
 func MigrateDB(db *gorm.DB) {
-	err := db.Migrator().AutoMigrate()
+	err := db.Migrator().AutoMigrate(
+		&models.Food{},
+		&models.Invoice{},
+		&models.Menu{},
+		&models.Note{},
+		&models.OrderItem{},
+		&models.Order{},
+		&models.Table{},
+		&models.User{},
+	)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
