@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"restaurant-management/models"
 	"restaurant-management/repository"
-	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var foodRepo = repository.FoodRepository{}
@@ -21,6 +22,7 @@ func CreateFood(c *gin.Context) {
 	}
 
 	food := models.Food{
+		ID:        uuid.New(),
 		Name:      req.Name,
 		Price:     req.Price,
 		FoodImage: req.FoodImage,
@@ -31,17 +33,16 @@ func CreateFood(c *gin.Context) {
 	}
 	if err := foodRepo.CreateFood(&food); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		log.Printf("Failed to create user: %v", err)
+		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "User created successfull", "user": food})
 }
 
 func GetFoodById(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("food_id"))
-	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "Invalid food ID"})
-		return
-	}
-	food, err := foodRepo.GetFoodById(uint(id))
+	id := c.Param("food_id")
+
+	food, err := foodRepo.GetFoodById(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
@@ -59,12 +60,9 @@ func GetFoods(c *gin.Context) {
 }
 
 func DeleteFood(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("food_id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-	if err := foodRepo.DeleteFood(uint(id)); err != nil {
+	id := c.Param("food_id")
+
+	if err := foodRepo.DeleteFood(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
 		return
 	}
