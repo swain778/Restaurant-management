@@ -18,5 +18,10 @@ func SetupRouter() *gin.Engine {
 	r.GET("/invoices", handlers.GetInvoices)
 	r.DELETE("/invoice/:invoice_id", handlers.DeleteInvoice)
 
+	r.POST("/menu", handlers.CreateMenu)
+	r.GET("/menu/:menu_id", handlers.GetMenuById)
+	r.GET("/menus", handlers.GetMenus)
+	r.DELETE("/menu/:menu_id", handlers.DeleteMenu)
+
 	return r
 }
