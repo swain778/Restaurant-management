@@ -23,5 +23,10 @@ func SetupRouter() *gin.Engine {
 	r.GET("/menus", handlers.GetMenus)
 	r.DELETE("/menu/:menu_id", handlers.DeleteMenu)
 
+	r.POST("/order", handlers.CreateOrder)
+	r.GET("/order/:order_id", handlers.GetOrderById)
+	r.GET("/orders", handlers.GetOrders)
+	r.DELETE("/orders/:invoice_id", handlers.DeleteOrder)
+
 	return r
 }
