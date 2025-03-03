@@ -33,5 +33,10 @@ func SetupRouter() *gin.Engine {
 	r.GET("/order_items", handlers.OrderItems)
 	r.DELETE("/order_item/:order_item_id", handlers.DeleteOrderItem)
 
+	r.POST("/table", handlers.CreateTable)
+	r.GET("/table/:table_id", handlers.GetTableById)
+	r.GET("/tables", handlers.GetTables)
+	r.DELETE("/table/:table_id", handlers.DeleteTable)
+
 	return r
 }
