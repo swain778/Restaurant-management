@@ -39,7 +39,7 @@ func (u *UserRepository) CheckUser(email string) (int, error) {
 
 func (u *UserRepository) CheckPhone(phone string) (int, error) {
 	var count int64
-	err := database.DB.Model(&models.User{}).Where("phone = ?").Count(&count).Error
+	err := database.DB.Model(&models.User{}).Where("phone = ?", phone).Count(&count).Error
 	if err != nil {
 		return 0, err
 	}
@@ -48,6 +48,6 @@ func (u *UserRepository) CheckPhone(phone string) (int, error) {
 
 func (u *UserRepository) GetUserByEmail(email string) (*models.User, error) {
 	var user models.User
-	err := database.DB.Where("email = ?", email).First(user).Error
+	err := database.DB.Where("email = ?", email).First(&user).Error
 	return &user, err
 }

@@ -74,91 +74,87 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }
 
-func SignUp() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var req models.User
+func SignUp(c *gin.Context) {
+	var req models.User
 
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		count, err := userRepo.CheckUser(*req.Email)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while checking for the email"})
-			return
-		}
-		password := HashPassword(*req.Password)
-		req.Password = &password
-
-		count, err = userRepo.CheckPhone(*req.Phone)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking for the phone number"})
-			return
-		}
-
-		if count > 0 {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "this email and phone number already exist"})
-			return
-		}
-
-		token, refreshToken, _ := helpers.GenerateAllTokens(*req.Email, *req.FirstName, *req.LastName, req.UserId)
-		req.Token = &token
-		req.RefreshToken = &refreshToken
-
-		user := models.User{
-			ID:           uuid.New(),
-			FirstName:    req.FirstName,
-			LastName:     req.LastName,
-			Password:     req.Password,
-			Email:        req.Email,
-			Avatar:       req.Avatar,
-			Phone:        req.Phone,
-			Token:        req.Token,
-			RefreshToken: req.RefreshToken,
-			CreatedAt:    time.Now(),
-			UserId:       req.UserId,
-		}
-
-		if err := userRepo.CreateUser(&user); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-			log.Printf("Failed to create user: %v", err)
-			return
-		}
-
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	count, err := userRepo.CheckUser(*req.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while checking for the email"})
+		return
+	}
+	password := HashPassword(*req.Password)
+	req.Password = &password
+
+	count, err = userRepo.CheckPhone(*req.Phone)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking for the phone number"})
+		return
+	}
+
+	if count > 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "this email and phone number already exist"})
+		return
+	}
+
+	token, refreshToken, _ := helpers.GenerateAllTokens(*req.Email, *req.FirstName, *req.LastName, req.UserId)
+	req.Token = &token
+	req.RefreshToken = &refreshToken
+
+	user := models.User{
+		ID:           uuid.New(),
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		Password:     req.Password,
+		Email:        req.Email,
+		Avatar:       req.Avatar,
+		Phone:        req.Phone,
+		Token:        req.Token,
+		RefreshToken: req.RefreshToken,
+		CreatedAt:    time.Now(),
+		UserId:       req.UserId,
+	}
+
+	if err := userRepo.CreateUser(&user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		log.Printf("Failed to create user: %v", err)
+		return
+	}
+	c.JSON(http.StatusOK, "user created successfully")
 }
 
-func Login() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var user models.User
-		var foundUser models.User
+func Login(c *gin.Context) {
+	var user models.User
+	// foundUser models.User
 
-		if err := c.ShouldBindJSON(&user); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		_, err := userRepo.GetUserByEmail(*user.Email)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
-			return
-		}
-
-		passwordIsValid, msg := VerifyPassword(*user.Password, *foundUser.Password)
-		if passwordIsValid != true {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-			return
-		}
-
-		token, refreshToken, _ := helpers.GenerateAllTokens(*foundUser.Email, *foundUser.FirstName, *foundUser.LastName, foundUser.UserId)
-
-		_ = token
-		_ = refreshToken
-		//helpers.UpdateAllTokens(token, refreshToken, foundUser.UserId)
-
-		c.JSON(http.StatusOK, foundUser)
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
+
+	user1, err := userRepo.GetUserByEmail(*user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
+		return
+	}
+
+	passwordIsValid, msg := VerifyPassword(*user.Password, *user1.Password)
+	if passwordIsValid != true {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+		return
+	}
+
+	token, refreshToken, _ := helpers.GenerateAllTokens(*user1.Email, *user1.FirstName, *user1.LastName, user1.UserId)
+
+	_ = token
+	_ = refreshToken
+	//helpers.UpdateAllTokens(token, refreshToken, foundUser.UserId)
+
+	c.JSON(http.StatusOK, token)
 }
 
 func HashPassword(password string) string {
