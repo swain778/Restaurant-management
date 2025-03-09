@@ -83,7 +83,7 @@ func SignUp() gin.HandlerFunc {
 			return
 		}
 
-		count, err := userRepo.CheckUser(req.Email)
+		count, err := userRepo.CheckUser(*req.Email)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occured while checking for the email"})
 			return
@@ -91,7 +91,7 @@ func SignUp() gin.HandlerFunc {
 		password := HashPassword(*req.Password)
 		req.Password = &password
 
-		count, err = userRepo.CheckPhone(req.Phone)
+		count, err = userRepo.CheckPhone(*req.Phone)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error while checking for the phone number"})
 			return
@@ -139,7 +139,7 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		err := userRepo.GetUserByEmail(user.Email)
+		_, err := userRepo.GetUserByEmail(*user.Email)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
 			return
