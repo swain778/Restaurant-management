@@ -1,35 +1,33 @@
+
 services:
   postgres:
     image: postgres:15
-    container_name: restaurant_postgres
+    container_name: database
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: swain@123
       POSTGRES_DB: restaurant_management
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # app:
-  #   build: .
-  #   container_name: restaurant_app
-  #   restart: always
-  #   depends_on:
-  #     - postgres
-  #   environment:
-  #     DB_HOST: postgres
-  #     DB_PORT: 5432
-  #     DB_USER: postgres
-  #     DB_PASSWORD: swain@123
-  #     DB_NAME: restaurant_management
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - .:/app
-  #   working_dir: /app
-  #   command: go build . && ./app
+  app:
+    build: .
+    container_name: application
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: swain@123
+      DB_NAME: restaurant_management
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:
